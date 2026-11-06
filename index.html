@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сборка и подбор ПК под заказ</title>
+<meta name="description" content="Подберём и соберём компьютер под ваши задачи и бюджет. Проверим совместимость, протестируем и выдадим с гарантией.">
+<style>
+/* ========== Переменные: палитра и размеры ========== */
+:root {
+  --bg: #161b26;          /* глубокий сине-серый фон */
+  --bg-alt: #1b2130;      /* чередующиеся секции */
+  --surface: #222939;     /* карточки */
+  --surface-2: #2a3245;
+  --border: #38425a;      /* тонкие границы */
+  --text: #e8ebf2;        /* основной текст (контраст ≈ 14:1) */
+  --muted: #aab2c5;       /* вторичный текст (контраст ≈ 7:1) */
+  --lavender: #b9aedb;    /* главный акцент */
+  --sage: #a3c4b2;        /* вторичный акцент */
+  --sand: #dcc7a1;        /* тёплый акцент */
+  --error: #e3a3a3;       /* мягкая ошибка */
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(5, 8, 15, .35);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ========== База ========== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1.0625rem;  /* 17px */
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+}
+h1, h2, h3 { line-height: 1.2; margin: 0 0 .6em; letter-spacing: -.01em; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); }
+h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); }
+h3 { font-size: 1.2rem; }
+p { margin: 0 0 1em; }
+a { color: var(--lavender); }
+.container { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+section { padding: 5rem 0; }
+.section-head { max-width: 40rem; margin-bottom: 2.5rem; }
+.section-head p { color: var(--muted); }
+:focus-visible { outline: 3px solid var(--sand); outline-offset: 3px; border-radius: 6px; }
+
+/* ========== Кнопки ========== */
+.btn {
+  display: inline-block;
+  padding: .85rem 1.6rem;
+  font: inherit; font-weight: 600;
+  color: #1a1f2c; background: var(--lavender);
+  border: 0; border-radius: 999px;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(185, 174, 219, .22);
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.btn:hover { background: #c8bee4; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(185, 174, 219, .3); }
+.btn-small { padding: .55rem 1.2rem; font-size: .95rem; }
+
+/* ========== Шапка ========== */
+.site-header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(22, 27, 38, .88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 68px; }
+.logo { font-weight: 700; font-size: 1.15rem; color: var(--text); text-decoration: none; }
+.logo span { color: var(--sage); }
+
+/* ========== Первый экран ========== */
+.hero { padding: 5.5rem 0 5rem; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 3rem; align-items: center; }
+.hero p.lead { font-size: 1.2rem; color: var(--muted); max-width: 34rem; margin-bottom: 2rem; }
+
+/* Карточка проверки совместимости — единственный «яркий» элемент hero */
+.check-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 1.6rem; box-shadow: var(--shadow);
+  animation: rise .8s ease-out both;  /* единственная анимация при загрузке */
+}
+.check-card h2 { font-size: 1.05rem; color: var(--muted); font-weight: 600; margin-bottom: 1rem; }
+.check-card ul { list-style: none; margin: 0; padding: 0; }
+.check-card li {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: .7rem 0; border-top: 1px solid var(--border); font-size: .98rem;
+}
+.check-card li:first-child { border-top: 0; }
+.check-card .ok { color: var(--sage); font-weight: 600; white-space: nowrap; }
+.check-card .total { margin: 1rem 0 0; padding: .8rem 1rem; background: var(--surface-2); border-radius: 12px; color: var(--sand); font-weight: 600; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ========== Карточки (услуги, преимущества) ========== */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.8rem; box-shadow: var(--shadow);
+  transition: transform .25s, border-color .25s;
+}
+.card:hover { transform: translateY(-4px); border-color: var(--lavender); }
+.card p { color: var(--muted); margin: 0; }
+.card .tag { display: inline-block; margin-top: 1rem; font-size: .95rem; color: var(--sage); }
+.icon { width: 46px; height: 46px; margin-bottom: 1.1rem; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border); }
+.icon svg { width: 24px; height: 24px; stroke: var(--lavender); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.alt { background: var(--bg-alt); border-block: 1px solid var(--border); }
+
+/* ========== Шаги ========== */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; counter-reset: step; }
+.steps li { position: relative; padding: 1.6rem 1.4rem 1.4rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); counter-increment: step; }
+.steps li::before {
+  content: counter(step);
+  display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 1rem;
+  border-radius: 50%; background: var(--sand); color: #1f2230; font-weight: 700;
+}
+.steps p { color: var(--muted); margin: 0; }
+
+/* ========== Форма ========== */
+.form-wrap { max-width: 720px; margin-inline: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.2rem; box-shadow: var(--shadow); }
+.field { margin-bottom: 1.3rem; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+label { display: block; margin-bottom: .4rem; font-weight: 600; font-size: .98rem; }
+.hint { font-weight: 400; color: var(--muted); }
+input, select, textarea {
+  width: 100%; padding: .8rem 1rem; font: inherit; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  transition: border-color .2s, box-shadow .2s;
+}
+textarea { resize: vertical; min-height: 110px; }
+input:hover, select:hover, textarea:hover { border-color: #55617f; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(185, 174, 219, .25); }
+.invalid { border-color: var(--error) !important; }
+.error { min-height: 1.3em; margin: .35rem 0 0; font-size: .92rem; color: var(--error); }
+.success { display: none; margin-top: 1.2rem; padding: 1rem 1.2rem; border: 1px solid var(--sage); border-radius: 12px; background: rgba(163, 196, 178, .12); color: var(--sage); }
+.success.show { display: block; }
+
+/* ========== Подвал ========== */
+.site-footer { padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-alt); }
+.footer-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem; }
+.site-footer p { margin: 0 0 .3rem; color: var(--muted); }
+.site-footer address { font-style: normal; color: var(--muted); }
+.site-footer strong { color: var(--text); }
+
+/* ========== Адаптивность ========== */
+@media (max-width: 860px) {
+  section { padding: 3.5rem 0; }
+  .hero { padding-top: 3rem; }
+  .hero-grid, .row { grid-template-columns: 1fr; }
+  .form-wrap { padding: 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Шапка -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="#top" class="logo">Сборка<span>ПК</span></a>
+    <a href="#order" class="btn btn-small">Оставить заявку</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Первый экран -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <h1>Компьютер, собранный под ваши задачи</h1>
+        <p class="lead">Подберём комплектующие под игры, работу или монтаж, проверим совместимость, соберём и протестируем. Вы получите готовый ПК, а не набор коробок.</p>
+        <a href="#order" class="btn">Оставить заявку</a>
+      </div>
+      <aside class="check-card" aria-label="Пример проверки совместимости">
+        <h2>Проверка сборки перед заказом</h2>
+        <ul>
+          <li><span>Процессор и материнская плата</span><span class="ok">сокет совпадает</span></li>
+          <li><span>Оперативная память</span><span class="ok">тип поддерживается</span></li>
+          <li><span>Видеокарта и корпус</span><span class="ok">длина подходит</span></li>
+          <li><span>Блок питания</span><span class="ok">запас по мощности</span></li>
+          <li><span>Охлаждение</span><span class="ok">высота в норме</span></li>
+        </ul>
+        <p class="total">Все 5 проверок пройдены</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Услуги -->
+  <section id="services" class="alt" aria-labelledby="services-title">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="services-title">Что мы делаем</h2>
+        <p>Три варианта работы: выберите тот, что подходит вашей ситуации.</p>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="9" r="2.5"/><path d="M9 16h6"/></svg></div>
+          <h3>Сборка ПК под задачи и бюджет</h3>
+          <p>Составим конфигурацию под ваши программы и игры, закупим детали, соберём и протестируем под нагрузкой.</p>
+        </article>
+        <article class="card">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+          <h3>Подбор комплектующих с проверкой совместимости</h3>
+          <p>Если хотите собирать сами: дадим список деталей, которые точно подойдут друг другу, по сокетам, размерам и питанию.</p>
+        </article>
+        <article class="card">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 21h14"/></svg></div>
+          <h3>Апгрейд существующего компьютера</h3>
+          <p>Посмотрим, что тормозит ваш ПК, и заменим только нужное: видеокарту, память, накопитель или процессор.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Как мы работаем -->
+  <section id="process" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="process-title">Как мы работаем</h2>
+        <p>Четыре понятных шага от заявки до выдачи компьютера.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Заявка</h3><p>Вы рассказываете, для чего нужен ПК и какой у вас бюджет.</p></li>
+        <li><h3>Подбор</h3><p>Предлагаем конфигурацию, объясняем выбор и согласовываем с вами.</p></li>
+        <li><h3>Сборка</h3><p>Собираем, аккуратно укладываем кабели, тестируем стабильность и температуры.</p></li>
+        <li><h3>Выдача</h3><p>Передаём готовый ПК с настроенной системой и гарантией.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Почему мы -->
+  <section id="why" class="alt" aria-labelledby="why-title">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="why-title">Почему мы</h2>
+      </div>
+      <div class="cards">
+        <article class="card"><h3>Опыт работы руками</h3><p>Собираем компьютеры и ремонтируем электронику сами, а не только перепродаём детали.</p></article>
+        <article class="card"><h3>Честный бюджет</h3><p>Не навязываем лишнее: деньги идут в компоненты, которые влияют на вашу задачу.</p></article>
+        <article class="card"><h3>Проверка перед сборкой</h3><p>Совместимость проверяем заранее, поэтому не бывает деталей, которые не встали в корпус.</p></article>
+        <article class="card"><h3>Гарантия и поддержка</h3><p>Отвечаем на вопросы после выдачи и помогаем, если что-то работает не так.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Форма заявки -->
+  <section id="order" aria-labelledby="order-title">
+    <div class="container">
+      <div class="section-head" style="margin-inline:auto;text-align:center">
+        <h2 id="order-title">Оставить заявку</h2>
+        <p>Заполните форму, и мы свяжемся с вами, чтобы уточнить детали.</p>
+      </div>
+      <div class="form-wrap">
+        <form id="order-form" novalidate>
+          <div class="field">
+            <label for="name">Имя</label>
+            <input id="name" name="name" type="text" autocomplete="name" aria-describedby="name-error" required>
+            <p class="error" id="name-error" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="contact">Контакт <span class="hint">(телефон или Telegram)</span></label>
+            <input id="contact" name="contact" type="text" placeholder="+7 900 000-00-00 или @username" aria-describedby="contact-error" required>
+            <p class="error" id="contact-error" role="alert"></p>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="purpose">Для чего нужен ПК</label>
+              <select id="purpose" name="purpose" aria-describedby="purpose-error" required>
+                <option value="">Выберите вариант</option>
+                <option>Игры</option>
+                <option>Работа и учёба</option>
+                <option>Монтаж и графика</option>
+                <option>Программирование и ИИ</option>
+                <option>Другое</option>
+              </select>
+              <p class="error" id="purpose-error" role="alert"></p>
+            </div>
+            <div class="field">
+              <label for="budget">Примерный бюджет</label>
+              <select id="budget" name="budget" aria-describedby="budget-error" required>
+                <option value="">Выберите диапазон</option>
+                <option>до 60 000 ₽</option>
+                <option>60 000 – 100 000 ₽</option>
+                <option>100 000 – 150 000 ₽</option>
+                <option>150 000 – 250 000 ₽</option>
+                <option>от 250 000 ₽</option>
+                <option>Пока не знаю</option>
+              </select>
+              <p class="error" id="budget-error" role="alert"></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="comment">Комментарий <span class="hint">(необязательно)</span></label>
+            <textarea id="comment" name="comment" maxlength="1000" placeholder="Какие программы или игры нужны, есть ли пожелания по корпусу, шуму, подсветке"></textarea>
+          </div>
+          <button type="submit" class="btn">Отправить заявку</button>
+          <p class="success" id="success" role="status" tabindex="-1"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Подвал -->
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <p><strong>СборкаПК</strong></p>
+      <p>Сборка и подбор ПК под заказ</p>
+    </div>
+    <address>
+      <p>Телефон: <a href="tel:+70000000000">+7 (000) 000-00-00</a></p>
+      <p>Telegram: <a href="https://t.me/username">@username</a></p>
+      <p>Почта: <a href="mailto:hello@example.com">hello@example.com</a></p>
+    </address>
+    <p>Ежедневно, 10:00–20:00</p>
+  </div>
+</footer>
+
+<script>
+/* ========== Валидация формы (без реальной отправки) ========== */
+(function () {
+  const form = document.getElementById('order-form');
+  const success = document.getElementById('success');
+
+  // Правила: возвращают текст ошибки или пустую строку
+  const rules = {
+    name: v => v.trim().length >= 2 ? '' : 'Укажите имя: минимум 2 символа.',
+    contact: v => {
+      const t = v.trim();
+      const phone = /^\+?[\d\s()\-]{10,18}$/.test(t) && t.replace(/\D/g, '').length >= 10;
+      const tg = /^@?[A-Za-z][A-Za-z0-9_]{4,31}$/.test(t);
+      return (phone || tg) ? '' : 'Введите телефон (от 10 цифр) или Telegram вида @username.';
+    },
+    purpose: v => v ? '' : 'Выберите, для чего нужен ПК.',
+    budget: v => v ? '' : 'Выберите примерный бюджет.'
+  };
+
+  function check(field) {
+    const input = form.elements[field];
+    const msg = rules[field](input.value);
+    document.getElementById(field + '-error').textContent = msg;
+    input.classList.toggle('invalid', !!msg);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    return !msg;
+  }
+
+  // Проверка при уходе с поля и исправление ошибки по ходу ввода
+  Object.keys(rules).forEach(f => {
+    const el = form.elements[f];
+    el.addEventListener('blur', () => check(f));
+    el.addEventListener('input', () => { if (el.classList.contains('invalid')) check(f); });
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    success.classList.remove('show');
+    const results = Object.keys(rules).map(check);   // проверяем все поля сразу
+    if (results.includes(false)) {
+      form.querySelector('.invalid').focus();         // фокус на первое проблемное поле
+      return;
+    }
+    // Здесь позже будет реальная отправка (fetch на сервер или Telegram-бот)
+    const name = form.elements.name.value.trim();
+    success.textContent = name + ', заявка принята. Мы свяжемся с вами в ближайшее время.';
+    success.classList.add('show');
+    success.focus();
+    form.reset();
+  });
+})();
+</script>
+</body>
+</html>
